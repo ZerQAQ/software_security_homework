@@ -1,0 +1,118 @@
+KW_typedef KW_unsigned KW_int ID_uint OP_; 
+
+KW_const ID_uint ID_S OP_[ OP_] OP_= OP_{ 
+CST_0xE OP_, CST_4 OP_, CST_0xD OP_, CST_1 OP_, CST_2 OP_, CST_0xF OP_, CST_0xB OP_, CST_8 OP_, CST_3 OP_, CST_0xA OP_, CST_6 OP_, CST_0xC OP_, CST_5 OP_, CST_9 OP_, CST_0 OP_, CST_7 OP_} OP_; 
+KW_const ID_uint ID_fS OP_[ OP_] OP_= OP_{ 
+CST_14 OP_, CST_3 OP_, CST_4 OP_, CST_8 OP_, CST_1 OP_, CST_12 OP_, CST_10 OP_, CST_15 OP_, CST_7 OP_, CST_13 OP_, CST_9 OP_, CST_6 OP_, CST_11 OP_, CST_2 OP_, CST_0 OP_, CST_5 OP_} OP_; 
+KW_const ID_uint ID_P OP_[ OP_] OP_= OP_{ 
+CST_0 OP_, CST_4 OP_, CST_8 OP_, CST_12 OP_, CST_1 OP_, CST_5 OP_, CST_9 OP_, CST_13 OP_, CST_2 OP_, CST_6 OP_, CST_10 OP_, CST_14 OP_, CST_3 OP_, CST_7 OP_, CST_11 OP_, CST_15 OP_} OP_; 
+KW_const ID_uint ID_fP OP_[ OP_] OP_= OP_{ 
+CST_0 OP_, CST_4 OP_, CST_8 OP_, CST_12 OP_, CST_1 OP_, CST_5 OP_, CST_9 OP_, CST_13 OP_, CST_2 OP_, CST_6 OP_, CST_10 OP_, CST_14 OP_, CST_3 OP_, CST_7 OP_, CST_11 OP_, CST_15 OP_} OP_; 
+
+KW_void ID_prtBinary OP_( ID_uint ID_text OP_) 
+OP_{ 
+KW_for OP_( ID_uint ID_i OP_= CST_12 OP_; ID_i OP_>= CST_0 OP_; ID_i OP_-= CST_4 OP_) 
+OP_{ 
+ID_cout OP_<< ID_bitset OP_< CST_4 OP_> OP_( ID_text OP_>> ID_i OP_) OP_<< CST_" " OP_; 
+OP_} 
+ID_cout OP_<< ID_endl OP_; 
+OP_} 
+
+ID_uint ID_Sbox OP_( ID_uint ID_text OP_, KW_const ID_uint OP_* ID_sbox OP_= ID_S OP_) 
+OP_{ 
+ID_uint ID_ret OP_= CST_0 OP_; 
+KW_for OP_( ID_uint ID_i OP_= CST_0 OP_; ID_i OP_< CST_16 OP_; ID_i OP_+= CST_4 OP_) 
+OP_{ 
+ID_uint ID_origin OP_= ID_text OP_& OP_( CST_0xf OP_<< ID_i OP_) OP_; 
+ID_origin OP_>>= ID_i OP_; 
+ID_ret OP_|= ID_sbox OP_[ ID_origin OP_] OP_<< ID_i OP_; 
+OP_} 
+KW_return ID_ret OP_; 
+OP_} 
+
+ID_uint ID_Pbox OP_( ID_uint ID_text OP_, KW_const ID_uint OP_* ID_pbox OP_= ID_P OP_) 
+OP_{ 
+ID_bool ID_origin OP_[ CST_16 OP_] OP_, ID_after OP_[ CST_16 OP_] OP_; 
+KW_for OP_( ID_uint ID_i OP_= CST_0 OP_; ID_i OP_< CST_16 OP_; ID_i OP_++ OP_) 
+OP_{ 
+ID_origin OP_[ ID_i OP_] OP_= OP_( ID_text OP_>> ID_i OP_) OP_& CST_1 OP_; 
+OP_} 
+KW_for OP_( ID_uint ID_i OP_= CST_0 OP_; ID_i OP_< CST_16 OP_; ID_i OP_++ OP_) 
+OP_{ 
+ID_after OP_[ ID_pbox OP_[ ID_i OP_] OP_] OP_= ID_origin OP_[ ID_i OP_] OP_; 
+OP_} 
+ID_uint ID_ret OP_= CST_0 OP_; 
+KW_for OP_( ID_uint ID_i OP_= CST_0 OP_; ID_i OP_< CST_16 OP_; ID_i OP_++ OP_) 
+OP_{ 
+ID_ret OP_|= ID_after OP_[ ID_i OP_] OP_<< ID_i OP_; 
+OP_} 
+KW_return ID_ret OP_; 
+OP_} 
+
+
+ID_uint ID_Kbox OP_( ID_uint ID_text OP_, ID_uint ID_k OP_, ID_uint ID_i OP_) 
+OP_{ 
+ID_i OP_-- OP_; 
+ID_uint ID_Ki OP_= CST_0x3a94d63f OP_& OP_( CST_0xffff0000 OP_>> OP_( ID_i OP_* CST_4 OP_) OP_) OP_; 
+ID_Ki OP_>>= OP_( CST_4 OP_- ID_i OP_) OP_* CST_4 OP_; 
+
+
+KW_return ID_text OP_^ ID_Ki OP_; 
+OP_} 
+
+ID_uint ID_SPN_encryp OP_( ID_uint ID_x OP_, ID_uint ID_k OP_) 
+OP_{ 
+KW_for OP_( ID_uint ID_i OP_= CST_1 OP_; ID_i OP_<= CST_4 OP_; ID_i OP_++ OP_) 
+OP_{ 
+ID_x OP_= ID_Kbox OP_( ID_x OP_, ID_k OP_, ID_i OP_) OP_; 
+
+
+ID_x OP_= ID_Sbox OP_( ID_x OP_) OP_; 
+
+
+KW_if OP_( ID_i OP_!= CST_4 OP_) 
+OP_{ 
+ID_x OP_= ID_Pbox OP_( ID_x OP_) OP_; 
+
+
+OP_} 
+KW_else 
+OP_{ 
+ID_x OP_= ID_Kbox OP_( ID_x OP_, ID_k OP_, ID_i OP_+ CST_1 OP_) OP_; 
+OP_} 
+OP_} 
+KW_return ID_x OP_; 
+OP_} 
+
+ID_uint ID_SPN_decrypt OP_( ID_uint ID_x OP_, ID_uint ID_k OP_) 
+OP_{ 
+KW_for OP_( ID_uint ID_i OP_= CST_4 OP_; ID_i OP_>= CST_1 OP_; ID_i OP_-- OP_) 
+OP_{ 
+KW_if OP_( ID_i OP_!= CST_4 OP_) 
+OP_{ 
+ID_x OP_= ID_Pbox OP_( ID_x OP_, ID_fP OP_) OP_; 
+OP_} 
+KW_else 
+OP_{ 
+ID_x OP_= ID_Kbox OP_( ID_x OP_, ID_k OP_, ID_i OP_+ CST_1 OP_) OP_; 
+OP_} 
+ID_x OP_= ID_Sbox OP_( ID_x OP_, ID_fS OP_) OP_; 
+ID_x OP_= ID_Kbox OP_( ID_x OP_, ID_k OP_, ID_i OP_) OP_; 
+OP_} 
+KW_return ID_x OP_; 
+OP_} 
+
+KW_int ID_main OP_( OP_) 
+OP_{ 
+ID_uint ID_n OP_; 
+ID_scanf OP_( CST_"%d" OP_, OP_& ID_n OP_) OP_; 
+KW_while OP_( ID_n OP_-- OP_) 
+OP_{ 
+ID_uint ID_k OP_, ID_x OP_; 
+ID_scanf OP_( CST_"%x %x" OP_, OP_& ID_k OP_, OP_& ID_x OP_) OP_; 
+ID_uint ID_v1 OP_= ID_SPN_encryp OP_( ID_x OP_, ID_k OP_) OP_; 
+ID_uint ID_v2 OP_= ID_SPN_decrypt OP_( ID_v1 OP_^ CST_1 OP_, ID_k OP_) OP_; 
+ID_printf OP_( CST_"%04x %04x\n" OP_, ID_v1 OP_, ID_v2 OP_) OP_; 
+OP_} 
+KW_return CST_0 OP_; 
+OP_} EOF%
