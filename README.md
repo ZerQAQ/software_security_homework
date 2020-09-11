@@ -1,4 +1,4 @@
-用rust写的C语言词法分析器在根目录下使用命令:
+在根目录下使用命令:
     cargo build
 
 然后运行target/debug/code_analys -help 来获取使用说明
