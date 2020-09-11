@@ -165,7 +165,7 @@ fn main() {
                 .required(true)
                 .takes_value(true))
             .arg(Arg::with_name("f2")
-                .help("the first file you need to compare")
+                .help("the second file you need to compare")
                 .required(true)
                 .takes_value(true)))
         .get_matches();
