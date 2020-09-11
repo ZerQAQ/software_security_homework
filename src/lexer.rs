@@ -19,10 +19,12 @@ pub struct Lexer<'a> {
     pub identifier_map_f: HashMap<u32, String>,
     id_num: u32,
 
+    pub endl_flag: bool,
     text: &'a str,
     text_bytes: &'a [u8],
     text_len: usize,
     pointer: usize,
+    pointer_next: usize,
 }
 macro_rules! map {
     ($new_func:expr, $($value:expr),*) => {
@@ -84,7 +86,9 @@ impl<'a> Lexer<'a> {
             identifier_map: HashMap::new(),
             identifier_map_f: HashMap::new(),
             pointer: 0,
+            pointer_next: 0,
             id_num: 0,
+            endl_flag: false,
             text,
             text_bytes: text.as_bytes(),
             text_len: text.len(),
@@ -101,14 +105,35 @@ impl<'a> Lexer<'a> {
             println!("{} {}", k, v);
         }
     }
-    pub fn next_token(&mut self) -> Result<Token, Box<dyn Error>> {
+    pub fn is_EOF(&mut self) -> bool{
+        let t = self.touch_next_token().unwrap();
+        if let Token::EOF = t {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    pub fn touch_next_token(&mut self) -> Result<Token, Box<dyn Error>> {
+        let pointer = self.pointer;
+        let ret = self.get_next_token();
+        self.pointer_next = self.pointer;
+        self.pointer = pointer;
+        ret
+    }
+    pub fn flash_pointer(&mut self){
+        self.pointer = self.pointer_next;
+    }
+    pub fn get_next_token(&mut self) -> Result<Token, Box<dyn Error>> {
         //跳过空格符
         while self.pointer < self.text_len && is_space(self.text_bytes[self.pointer] as char) {
             if self.text_bytes[self.pointer] as char == '\n'{
                 self.pointer += 1;
-                return Ok(Token::Endl);
+                if self.endl_flag{
+                    return Ok(Token::Endl);
+                }
+            } else{
+                self.pointer += 1;
             }
-            self.pointer += 1;
         }
         //如果遇到尾部返回EOF
         if self.pointer == self.text_len {
@@ -136,10 +161,14 @@ impl<'a> Lexer<'a> {
             }
             //略过宏定义和注释
             if first_char == '#' || (self.pointer + 2 <= self.text_len && &self.text[self.pointer..self.pointer + 2] == "//"){
-                while self.text_bytes[self.pointer] as char != '\n' {
+                let mut temp_c = ' ';
+                while temp_c != '\n' {
+                    temp_c = self.text_bytes[self.pointer] as char;
+                    //let char_size = count_char_size(temp_c);
+                    //println!("[{}] {}", temp_c, char_size);
                     self.pointer += 1;
                 }
-                return self.next_token();
+                return self.get_next_token();
             }
             //读符号
             return self.read_operator();
@@ -233,4 +262,30 @@ fn is_dig(c: char) -> bool{
     ('a' <= c && c <= 'z') ||
     ('A' <= c && c <= 'Z') ||
     c == '.'
+}
+
+pub fn print_token(l: &Lexer, t: &Token){
+    match t {
+        Token::Identifier(code) => {
+            print!("ID_{} ", l.identifier_map_f.get(&code).unwrap());
+        },Token::Keyword(code) => {
+            print!("KW_{} ", l.keyword_map_f.get(&code).unwrap());
+        },Token::EOF => {
+            print!("EOF");
+        },Token::Operator(code) => {
+            print!("OP_{} ", l.operator_map_f.get(&code).unwrap());
+        },Token::Const(s) => {
+            print!("CST_{} ", s);
+        },Token::Endl => {
+            print!("\n");
+        }
+    }
+}
+
+fn count_char_size(c: char) -> usize {
+    let c = c as u32;
+    for i in (1..4) {
+        if c < (1 << (i * 8)) {return i as usize};
+    }
+    return 4;
 }
