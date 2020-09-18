@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::error::Error;
+#[derive(Debug)]
 pub enum Token {
     Keyword(u32),
     Identifier(u32),

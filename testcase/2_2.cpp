@@ -4,9 +4,8 @@
 using namespace std;
 
 
-typedef unsigned long long ull;
-
-typedef unsigned int uint;
+typedef int uint;
+typedef long ull;
 int lliilllliliili[C_SIZE] = {0};
 
 const uint C_SIZE = (1 << 8) + 100;

@@ -3,8 +3,8 @@
 
 using namespace std;
 
-typedef unsigned int uint;
-typedef unsigned long long ull;
+typedef int uint;
+typedef long ull;
 
 uint text_pair[8000 + 10];
 
@@ -14,6 +14,8 @@ int Count[C_SIZE] = {0};
 #define to_u4(x, k) fS[(x) ^ (k)]
 
 #define read_hex_unit {}
+
+void sort(){}
 
 #define read_hex_unit_4 read_hex_unit read_hex_unit read_hex_unit read_hex_unit
 inline
