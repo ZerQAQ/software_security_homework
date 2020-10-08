@@ -1,24 +1,18 @@
-use crate::lexer;
 use crate::unit;
 
 use unit::I_token;
 
-use lexer::print_token;
-use lexer::Lexer;
-use lexer::Token;
-
-use std::collections::HashSet;
 use std::collections::HashMap;
 
 #[derive(Debug)]
-pub struct node{
+pub struct Node{
     pub edge: Vec<u64>,
     pub din: u64,
     pub dout: u64,
     pub id: u64,
     pub name: String,
-    start: usize,
-    end: usize,
+    pub start: usize,
+    pub end: usize,
 }
 
 fn is_type(string: &str) -> bool{
@@ -34,7 +28,7 @@ fn check_function_patterm(tokens: &[I_token]) -> bool{
     if let I_token::Keyword(string) = &tokens[0] {
         if !is_type(&string) {return false;}
     } else {return false;}
-    if let I_token::Identifier(string) = &tokens[1]{}
+    if let I_token::Identifier(_) = &tokens[1]{}
     else {return false;}
     if let I_token::Operator(string) = &tokens[2]{
         if string != "(" {return false;} //左括号
@@ -42,14 +36,13 @@ fn check_function_patterm(tokens: &[I_token]) -> bool{
     return true;
 }
 
-pub fn scan_function(tokens: Vec<I_token>) -> Vec<node> {
-    let mut functions: Vec<node> = Vec::new();
+pub fn scan_function(tokens: &Vec<I_token>) -> Vec<Node> {
+    let mut functions: Vec<Node> = Vec::new();
     let mut functions_map: HashMap<String, usize> = HashMap::new();
-    let mut ret: Vec<node>;
     let t_len = tokens.len();
     let mut t_ptr: usize = 0;
     loop{
-        if(t_ptr + 3 >= t_len) {break;};
+        if t_ptr + 3 >= t_len {break;};
         if check_function_patterm(&tokens[t_ptr..(t_ptr + 3)]) {
             let mut function_name = String::from("");
             if let I_token::Identifier(string) = &tokens[t_ptr + 1] {
@@ -57,7 +50,7 @@ pub fn scan_function(tokens: Vec<I_token>) -> Vec<node> {
             }
             let mut t_ptr_n = t_ptr + 3;
             let mut num = 1;
-            while(num > 0){ //跳过函数参数定义
+            while num > 0 { //跳过函数参数定义
                 if let I_token::Operator(string) = &tokens[t_ptr_n] {
                     if string == "(" {num += 1;}
                     if string == ")" {num -= 1;}
@@ -65,20 +58,20 @@ pub fn scan_function(tokens: Vec<I_token>) -> Vec<node> {
                 t_ptr_n += 1;
             }
             if let I_token::Operator(string) = &tokens[t_ptr_n] {
-                if(string == "{") {} 
+                if string == "{" {} 
                 else {break;}
             } else {break;}
             let func_start = t_ptr_n;
             t_ptr_n += 1;
             num = 1;
-            while(num > 0){ //跳过函数体
+            while num > 0 { //跳过函数体
                 if let I_token::Operator(string) = &tokens[t_ptr_n]{
                     if string == "{" {num += 1;}
                     if string == "}" {num -= 1;}
                 }
                 t_ptr_n += 1;
             }
-            let f = node{
+            let f = Node{
                 name: function_name,
                 start: func_start,
                 end: t_ptr_n - 1,

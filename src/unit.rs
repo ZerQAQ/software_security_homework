@@ -4,7 +4,6 @@
 
 use crate::lexer;
 
-use lexer::print_token;
 use lexer::Lexer;
 use lexer::Token;
 use std::fs;
@@ -52,20 +51,14 @@ fn read_line(l: &mut Lexer) -> Vec<Token> {
     return ret;
 }
 
-fn print_token_lines(lines: &Vec<Vec<Token>>, l: &Lexer) {
+/* fn print_token_lines(lines: &Vec<Vec<Token>>, l: &Lexer) {
     for line in lines {
         for token in line {
             print_token(l, &token);
         }
         println!("");
     }
-}
-
-macro_rules! hash_token_unit {
-    ($($type:expr, $fmt:expr),*) => {
-        $( Token::$type(code) => sh.input_str(&format!($fmt, code)), )*
-    };
-}
+} */
 
 pub fn hash_token_lines(lines: &Vec<Vec<Token>>) -> Vec<String> {
     let mut sh = Md5::new();
@@ -76,7 +69,7 @@ pub fn hash_token_lines(lines: &Vec<Vec<Token>>) -> Vec<String> {
             match token {
                 Token::Operator(code) => sh.input_str(&format!("OP_{} ", code)),
                 Token::Keyword(code) => sh.input_str(&format!("KW_{} ", code)),
-                Token::Identifier(code) => sh.input_str("ID "),
+                Token::Identifier(_) => sh.input_str("ID "),
                 Token::Const(s) => sh.input_str(&format!("CST_{} ", s)),
                 _ => {}
             }
@@ -87,7 +80,7 @@ pub fn hash_token_lines(lines: &Vec<Vec<Token>>) -> Vec<String> {
     return ret;
 }
 
-//我的代码写的像狗屎
+//???
 #[derive(Debug)]
 pub enum I_token {
     Keyword(String),
@@ -96,6 +89,21 @@ pub enum I_token {
     Operator(String),
     EOF,
     Endl,
+}
+
+use std::fmt;
+
+impl fmt::Display for I_token {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            I_token::Keyword(s) => f.write_str(&s),
+            I_token::Identifier(s) => f.write_str(&s),
+            I_token::Const(s) => f.write_str(&s),
+            I_token::Operator(s) => f.write_str(&s),
+            I_token::Endl => f.write_str("\n"),
+            I_token::EOF => f.write_str("EOF"),
+        }
+    }
 }
 
 fn token_to_I(token: Token, lexer: &Lexer) -> I_token {
@@ -113,9 +121,10 @@ fn token_to_I(token: Token, lexer: &Lexer) -> I_token {
     }
 }
 
-pub fn get_raw_I_token_lines(file_name: &str) -> Vec<I_token> {
+pub fn get_raw_I_token_lines_flag(file_name: &str, endl_flag: bool) -> Vec<I_token> {
     let s = fs::read_to_string(file_name).unwrap();
     let mut l = Lexer::new(&s);
+    l.endl_flag = endl_flag;
 
     let mut tokens: Vec<Token> = Vec::new();
     loop {
@@ -126,9 +135,13 @@ pub fn get_raw_I_token_lines(file_name: &str) -> Vec<I_token> {
     }
     parse_typedef_raw(&mut tokens);
 
-    let mut ret: Vec<I_token> = tokens.into_iter().map(|x| token_to_I(x, &l)).collect();
+    let ret: Vec<I_token> = tokens.into_iter().map(|x| token_to_I(x, &l)).collect();
 
     ret
+}
+
+pub fn get_raw_I_token_lines(file_name: &str) -> Vec<I_token> {
+    get_raw_I_token_lines_flag(file_name, false)
 }
 
 pub fn get_token_lines(file_name: &str) -> Vec<Vec<Token>> {
@@ -146,6 +159,20 @@ pub fn get_token_lines(file_name: &str) -> Vec<Vec<Token>> {
     }
     parse_typedef(&mut lines);
     lines
+}
+
+pub fn get_line_info(file_name: &str) -> Vec<u64> {
+    let tokens = get_raw_I_token_lines_flag(file_name, true);
+    let mut ret: Vec<u64> = Vec::new();
+    let mut line = 1;
+    for elm in &tokens {
+        if let I_token::Endl = elm {
+            line += 1;
+        } else {
+            ret.push(line);
+        }
+    }
+    ret
 }
 
 pub fn LCS<T: std::cmp::PartialEq>(s1: &Vec<T>, s2: &Vec<T>) -> u32 {
@@ -174,7 +201,6 @@ pub fn LCS<T: std::cmp::PartialEq>(s1: &Vec<T>, s2: &Vec<T>) -> u32 {
     return d[len - 1];
 }
 
-//我写的代码像狗屎
 fn parse_typedef_raw(line: &mut Vec<Token>) {
     let mut m = HashMap::new();
     for (i, token) in line.iter().enumerate() {

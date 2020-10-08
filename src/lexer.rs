@@ -69,7 +69,8 @@ impl<'a> Lexer<'a> {
                 "enum", "long", "while",
                 "extern", "int", "volatile",
                 "float", "if", "void",
-                "for", "goto", "unsigned"
+                "for", "goto", "unsigned",
+                "NULL"
             ),
             keyword_map_f: HashMap::new(),
             operator_map: map!(
@@ -98,14 +99,14 @@ impl<'a> Lexer<'a> {
         l.keyword_map_f = map_f!(&l.keyword_map);
         l
     }
-    pub fn prt(&self) {
+/*     pub fn prt(&self) {
         for (k, v) in &self.keyword_map {
             println!("{} {}", k, v);
         }
         for (k, v) in &self.keyword_map_f {
             println!("{} {}", k, v);
         }
-    }
+    } */
     pub fn is_EOF(&mut self) -> bool{
         let t = self.touch_next_token().unwrap();
         if let Token::EOF = t {
@@ -238,12 +239,12 @@ impl<'a> Lexer<'a> {
                 return Ok(Token::Operator(code.clone()));
             }
         }
-        panic!("is a illage operator.");
+        panic!("is a illage operator {}. in {}", &self.text[self.pointer..self.pointer + 10], self.pointer);
     }
 }
 #[inline(always)]
 fn is_space(c: char) -> bool {
-    c == ' ' || c == '\n'
+    c == ' ' || c == '\n' || c == '\t'
 }
 #[inline(always)]
 fn is_const(c: char) -> bool{
@@ -265,7 +266,7 @@ fn is_dig(c: char) -> bool{
     c == '.'
 }
 
-pub fn print_token(l: &Lexer, t: &Token){
+/* pub fn print_token(l: &Lexer, t: &Token){
     match t {
         Token::Identifier(code) => {
             print!("ID_{} ", l.identifier_map_f.get(&code).unwrap());
@@ -281,12 +282,12 @@ pub fn print_token(l: &Lexer, t: &Token){
             print!("\n");
         }
     }
-}
+} */
 
-fn count_char_size(c: char) -> usize {
+/* fn count_char_size(c: char) -> usize {
     let c = c as u32;
     for i in (1..4) {
         if c < (1 << (i * 8)) {return i as usize};
     }
     return 4;
-}
+} */
